@@ -86,6 +86,7 @@ const Education = () => {
     }
   };
 
+  
   return (
     <div className="boarder-container">
       <div className="form-archive-row">
@@ -129,9 +130,25 @@ const Education = () => {
             <option value="Bsc Mechanical Engineering">
               Bsc Mechanical Engineering
             </option>
+            <option value="Other">Other</option>
           </select>
         </div>
       </div>
+      {/* Conditionally render the text input for "Other" option */}
+      {formData.programOfStudy === "Other" && (
+        <div className="form-group col-md-6">
+          <label htmlFor="otherProgramOfStudy">Other Program of Study</label>
+          <input
+            type="text"
+            className="form-control"
+            id="otherProgramOfStudy"
+            name="otherProgramOfStudy"
+            value={formData.otherProgramOfStudy}
+            onChange={handleChange}
+            placeholder="Enter other program of study"
+          />
+        </div>
+      )}
 
       <div className="form-project-row">
         <div className="form-group col-md-6">
