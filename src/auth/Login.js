@@ -8,19 +8,24 @@ const Login = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
+    role: "student", // Default role is set to "student"
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState(""); // State to store user's role
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const submitForm = async (e) => {
-    e.preventDefault();
+  const authenticateUser = async () => {
+    const { email, password, role } = data;
 
     try {
       const response = await axios.post(
         "http://localhost/careercanvas/login.php",
-        data
+        { email, password, role }
       );
 
       if (
@@ -28,16 +33,44 @@ const Login = () => {
         response.data.message.includes("Logged in")
       ) {
         console.log("Login successful");
-        // Set student ID in sessionStorage
-        sessionStorage.setItem("studentId", response.data.student_id);
-        // Redirect to the student profile page
-        navigate("/studentprofile");
+
+        // Extract and set user's role
+        const userRole = response.data.role;
+        setUserRole(userRole);
+
+        // Set user ID and role in sessionStorage
+        sessionStorage.setItem("userId", response.data.user_id);
+        sessionStorage.setItem("userRole", userRole);
+
+        // Redirect based on role
+        switch (userRole) {
+          case "student":
+            navigate("/studentprofile");
+            break;
+          case "cpa":
+            navigate("/cpaprofile");
+            break;
+          default:
+            console.error("Invalid role");
+        }
       } else {
+        setError("Invalid email, password, or role. Please try again.");
         console.error("Login failed");
       }
     } catch (error) {
+      setError("An error occurred during login. Please try again later.");
       console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Call the authenticateUser function
+    authenticateUser();
   };
 
   return (
@@ -52,13 +85,13 @@ const Login = () => {
         <div className="row">
           <div className="col-md-12 text-center">
             <h6>
-              Do not have an account ?<Link to="/register"> Sign Up</Link>
+              Do not have an account? <Link to="/register">Sign Up</Link>
             </h6>
           </div>
         </div>
 
         <div className="row">
-          <div className="row-md-6"> Email </div>
+          <div className="row-md-6">Email </div>
           <div className="row-md-6">
             <input
               type="text"
@@ -71,7 +104,7 @@ const Login = () => {
         </div>
 
         <div className="row">
-          <div className="row-md-6"> Password</div>
+          <div className="row-md-6">Password</div>
           <div className="row-md-6">
             <input
               type="password"
@@ -84,23 +117,53 @@ const Login = () => {
         </div>
 
         <div className="row">
+          <div className="row-md-6">Role</div>
+          <div className="row-md-6">
+            <select
+              name="role"
+              className="form-control"
+              onChange={handleChange}
+              value={data.role}
+            >
+              <option value="student">Student</option>
+              <option value="cpa">Career Peer Advisor</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="row">
           <div className="col-md-12 text-center">
             <h6>
-              <Link to="/"> Forget password </Link>
+              <Link to="/">Forget password</Link>
             </h6>
           </div>
         </div>
+
+        {error && (
+          <div className="row">
+            <div className="col-md-12 text-center text-danger">{error}</div>
+          </div>
+        )}
 
         <div className="row">
           <div className="col-md-12">
             <input
               type="submit"
               name="Submit"
-              value="Login"
+              value={loading ? "Logging in..." : "Login"}
               className="btn btn-success"
+              disabled={loading}
             />
           </div>
         </div>
+
+        {userRole && (
+          <div className="row">
+            <div className="col-md-12 text-center">
+              <p>Logged in as: {userRole}</p>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

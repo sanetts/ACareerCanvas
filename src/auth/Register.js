@@ -10,20 +10,48 @@ const Register = () => {
     last_name: "",
     email: "",
     password: "",
+    role: "student", // Default role as 'student'
+    invitationCode: "", 
   });
+
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    // console.log(data);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!data.first_name || !data.last_name || !data.email || !data.password) {
+    if (
+      !data.first_name ||
+      !data.last_name ||
+      !data.email ||
+      !data.password ||
+      (data.role === "cpa" && !data.invitationCode) // Validate invitation code only if role is CPA
+    ) {
       console.error("All fields are required");
       return;
     }
 
     try {
+      // Validate the invitation code if the role is CPA
+      if (data.role === "cpa") {
+        const validateInvitationResponse = await axios.post(
+          "http://localhost/careercanvas/validate_invitation.php",
+          {
+            invitationCode: data.invitationCode,
+            email: data.email,
+          }
+        );
+
+        if (
+          validateInvitationResponse.status !== 200 ||
+          !validateInvitationResponse.data.valid
+        ) {
+          console.error("Invalid invitation code or email");
+          return;
+        }
+      }
+
+      // Proceed with registration
       const response = await axios.post(
         "http://localhost/careercanvas/register.php",
         data
@@ -31,7 +59,7 @@ const Register = () => {
 
       if (response.status === 200) {
         console.log("Data sent successfully");
-         navigate("/studentprofile");
+        { /* navigate("/login");*/}
       } else {
         console.error("Error sending data");
       }
@@ -64,7 +92,6 @@ const Register = () => {
 
         <div className="row">
           <div className="row-md-6"> Last Name</div>
-
           <div className="row-md-6">
             <input
               type="text"
@@ -102,15 +129,46 @@ const Register = () => {
           </div>
         </div>
 
+        {/* New Role Field */}
+        <div className="row">
+          <div className="row-md-6"> Role</div>
+          <div className="row-md-6">
+            <select
+              name="role"
+              className="form-control"
+              onChange={handleChange}
+              value={data.role}
+            >
+              <option value="student">Student</option>
+              <option value="cpa">Career Peer Advisor</option>
+            </select>
+          </div>
+        </div>
+
+        {/* New Invitation Code Field (conditional rendering) */}
+        {data.role === "cpa" && (
+          <div className="row">
+            <div className="row-md-6"> Invitation Code</div>
+            <div className="row-md-6">
+              <input
+                type="text"
+                name="invitationCode"
+                className="form-control"
+                onChange={handleChange}
+                value={data.invitationCode}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="row">
           <button
             type="submit"
             name="Submit"
             value="Sign Up"
             className="btn btn-success"
-            onClick={handleSubmit}
           >
-            save
+            Save
           </button>
         </div>
 

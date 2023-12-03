@@ -10,6 +10,7 @@ const StudentProfile = () => {
   const [formData, setFormData] = useState({
     githubUsername: "",
     linkedInProfile: "",
+    email: "",
     phoneNumber: "",
     city: "",
     country: "",
@@ -157,7 +158,7 @@ const StudentProfile = () => {
             </div>
             <div className="form-student-row">
               <div className="form-group col-md-6">
-                {/* <label htmlFor="email">Email</label>
+               <label htmlFor="email">Email</label>
                 <input
                   type="text"
                   className="form-control"
@@ -165,7 +166,7 @@ const StudentProfile = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                /> */}
+                /> 
               </div>
 
               <div className="form-group col-md-6">
