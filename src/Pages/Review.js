@@ -65,7 +65,7 @@ const Review = () => {
             },
             body: JSON.stringify({
               status: "PENDING",
-              id: educationItem.id, // Assuming the unique identifier for the education item
+              id: educationItem.id, 
             }),
           }
         );
@@ -94,7 +94,7 @@ const Review = () => {
               },
               body: JSON.stringify({
                 status: "PENDING",
-                id: projectItem.id, // Assuming the unique identifier for the education item
+                id: projectItem.project_id, 
               }),
             }
           );
@@ -119,51 +119,100 @@ const Review = () => {
 
   return (
     <div className="boarder-container">
-      <div className="form-student-row">
-        <div className="form-group col-md-6">
-          <label htmlFor="inputEmail4">EDUCATION</label>
-        </div>
-        <hr
-          className="long-line"
-          style={{ width: "100%", border: "1px solid black" }}
-        />
-      </div>
-
       {unapprovedEducationData.map((educationItem) => (
-        <div key={educationItem.education_id} className="row-grid">
-          <div className="left-side-experience">
-            <CheckBoxIcon />
+        <div>
+          <div className="form-student-row">
+            <div className="form-group col-md-6">
+              <label htmlFor="inputEmail4">EDUCATION</label>
+            </div>
+            <hr
+              className="long-line"
+              style={{ width: "100%", border: "1px solid black" }}
+            />
+          </div>
+          <div key={educationItem.education_id} className="row-grid">
+            <div className="left-side-experience">
+              <CheckBoxIcon />
+            </div>
+
+            <div className="right-side">
+              <div className="labels-container">
+                <label htmlFor="label1">School :</label>
+                <span id="label1">{educationItem.university_name}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">Program :</label>
+                <span id="label1">{educationItem.program_of_study}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">Start Date :</label>
+                <span id="label1">{educationItem.start_date}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">End Date :</label>
+                <span id="label1">{educationItem.end_date}</span>
+              </div>
+            </div>
+
+            <div>
+              <button className="main-primary-btn">
+                {educationItem.status}
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {unapprovedProjectData.map((projectItem) => (
+        <div>
+          <div className="form-student-row">
+            <div className="form-group col-md-6">
+              <label htmlFor="inputEmail4">PROJECT</label>
+            </div>
+            <hr
+              className="long-line"
+              style={{ width: "100%", border: "1px solid black" }}
+            />
           </div>
 
-          <div className="right-side">
-            <div className="labels-container">
-              <label htmlFor="label1">School :</label>
-              <span id="label1">{educationItem.university_name}</span>
+          <div key={projectItem.project_id} className="row-grid">
+            <div className="left-side-experience">
+              <CheckBoxIcon />
             </div>
 
-            <div className="labels-container">
-              <label htmlFor="label1">Program :</label>
-              <span id="label1">{educationItem.program_of_study}</span>
+            <div className="right-side">
+              <div className="labels-container">
+                <label htmlFor="label1">Project Name: </label>
+                <span id="label1">{projectItem.project_name}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">Project Owner:</label>
+                <span id="label1">{projectItem.project_owner}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">Start Date :</label>
+                <span id="label1">{projectItem.start_date}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">End Date :</label>
+                <span id="label1">{projectItem.end_date}</span>
+              </div>
+
+              <div className="labels-container">
+                <label htmlFor="label1">Project Description :</label>
+                <span id="label1">{projectItem.project_description}</span>
+              </div>
             </div>
 
-            <div className="labels-container">
-              <label htmlFor="label1">Start Date :</label>
-              <span id="label1">{educationItem.start_date}</span>
+            <div>
+              <button className="main-primary-btn">{projectItem.status}</button>
             </div>
-
-            <div className="labels-container">
-              <label htmlFor="label1">End Date :</label>
-              <span id="label1">{educationItem.end_date}</span>
-            </div>
-
-            <div className="labels-container">
-              <label htmlFor="label1">Description :</label>
-              <span id="label1">{educationItem.description}</span>
-            </div>
-          </div>
-
-          <div>
-            <button className="main-primary-btn">{educationItem.status}</button>
           </div>
         </div>
       ))}
@@ -172,7 +221,10 @@ const Review = () => {
         <button
           className="main-primary-btn"
           onClick={handleSendForReview}
-          disabled={unapprovedEducationData.some((item) => item.status === "PENDING")}
+          disabled={
+            unapprovedEducationData.some((item) => item.status === "PENDING") &&
+            unapprovedProjectData.some((item) => item.status === "PENDING")
+          }
         >
           Send All for Review
         </button>
