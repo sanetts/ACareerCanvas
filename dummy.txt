@@ -1,0 +1,347 @@
+return (
+    <div className="boarder-container">
+      {isAuthenticated && (
+        <div>
+          <div className="form-archive-row">
+            <div className="form-group col-md-6">
+              <label htmlFor="universityName">University Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="universityName"
+                name="universityName"
+                value={formData.universityName}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group col-md-6">
+              <label htmlFor="programOfStudy">Program of Study</label>
+              <select
+                className="form-control"
+                id="programOfStudy"
+                name="programOfStudy"
+                value={formData.programOfStudy}
+                onChange={handleChange}
+              >
+                <option value="" disabled>
+                  Select a program
+                </option>
+                <option value="Bsc Computer Science">Bsc Computer Science</option>
+                <option value="Bsc Management Information Systems">
+                  Bsc Management Information Systems
+                </option>
+                <option value="Bsc Business Administration">
+                  Bsc Business Administration
+                </option>
+                <option value="Bsc Computer Engineering">
+                  Bsc Computer Engineering
+                </option>
+                <option value="Bsc Electrical and Electronics Engineering">
+                  Bsc Electrical and Electronics Engineering
+                </option>
+                <option value="Bsc Mechanical Engineering">
+                  Bsc Mechanical Engineering
+                </option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          {/* Conditionally render the text input for "Other" option */}
+          {formData.programOfStudy === "Other" && (
+            <div className="form-group col-md-6">
+              <label htmlFor="otherProgramOfStudy">Other Program of Study</label>
+              <input
+                type="text"
+                className="form-control"
+                id="otherProgramOfStudy"
+                name="otherProgramOfStudy"
+                value={formData.otherProgramOfStudy}
+                onChange={handleChange}
+                placeholder="Enter other program of study"
+              />
+            </div>
+          )}
+
+          <div className="form-project-row">
+            <div className="form-group col-md-6">
+              <label htmlFor="startDate">Start Date</label>
+              <input
+                type="date"
+                className="form-control"
+                id="startDate"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group col-md-6">
+              <label htmlFor="endDate">End Date</label>
+              <input
+                type="date"
+                className="form-control"
+                id="endDate"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+
+          <input type="hidden" name="student_id" value={formData.student_id} />
+          <div className="form-education-row">
+            <div className="form-group col-md-6">
+              <div className="moveble">
+                <h6>
+                  <Link to="/save"> Add New Education Details </Link>
+                </h6>
+              </div>
+            </div>
+            
+          </div>
+
+          <div className="btn-row-education-form">
+            <button type="button" className="main-primary-btn" onClick={handleSave}>
+              save
+            </button>
+          </div>
+          
+        </div>
+      )}
+      </div>
+  );
+};
+
+export default Education;
+
+
+
+
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import "../Styles/App.css";
+import "../Styles/MainEducation.css";
+
+const MainEducation = () =>
+{
+  const navigate = useNavigate();
+
+  const [educationData, setEducationData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingIndex, setEditingIndex] = useState(null);
+
+  // Fetch education data from the backend when the component mounts
+  useEffect(() =>
+  {
+    const fetchData = async () =>
+    {
+      try {
+        const studentId = sessionStorage.getItem("studentId");
+
+        const response = await fetch(
+          `http://localhost/careercanvas/getEducationData.php?student_id=${studentId}`
+        );
+        const data = await response.json();
+        console.log("API Response:", data);
+
+        if (response.ok) {
+          setEducationData(data);
+        } else {
+          console.error("Error fetching education data");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>; // You can replace this with a loading spinner or any other loading indicator
+  }
+
+  const handleEditChange = (e, index, fieldName) => {
+    const { value } = e.target;
+    setEducationData((prevData) => {
+      const newData = [...prevData];
+      newData[index] = {
+        ...newData[index],
+        [fieldName]: value,
+      };
+      return newData;
+    });
+  };
+
+  const handleEdit = (index) =>
+  {
+
+    setEditingIndex(index);
+  };
+
+  const handleSave = async (educationItem) =>
+  {
+    // Save the edited data to the backend
+    try {
+      const response = await fetch(
+        "http://localhost/careercanvas/editEducationData.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(educationItem),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log(data.message);
+      
+        
+      } else {
+        console.error("Error updating record:", data.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  return (
+    <div className="boarder-container">
+      <div className="form-student-row">
+        <div className="form-group col-md-6">
+          <label htmlFor="inputEmail4">EDUCATION</label>
+        </div>
+        <hr
+          className="long-line"
+          style={{ width: "100%", border: "1px solid black" }}
+        />
+      </div>
+
+      {educationData.map((educationItem, index) => (
+        <div key={educationItem.education_id} className="row-grid">
+          <div left-side>
+            <CheckBoxIcon />
+          </div>
+
+          <div className="right-side">
+            <div className="labels-container">
+              <label htmlFor="label1">School :</label>
+              <span id="label1">
+                {editingIndex === index ? (
+                  <input
+                    type="text"
+                    value={educationData[index].university_name}
+                    onChange={(e) =>
+                      handleEditChange(e, index, "university_name")
+                    }
+                  />
+                ) : (
+                  educationItem.university_name
+                )}
+              </span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">Program :</label>
+              <span id="label1">
+                {editingIndex === index ? (
+                  <input
+                    type="text"
+                    value={educationItem.program_of_study}
+                    onChange={(e) => handleEditChange(e, index)}
+                  />
+                ) : (
+                  educationItem.program_of_study
+                )}
+              </span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">Start Date :</label>
+              <span id="label1">
+                {editingIndex === index ? (
+                  <input
+                    type="text"
+                    value={educationItem.start_date}
+                    onChange={(e) => handleEditChange(e, index)}
+                  />
+                ) : (
+                  educationItem.start_date
+                )}
+              </span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">End Date :</label>
+              <span id="label1">
+                {editingIndex === index ? (
+                  <input
+                    type="text"
+                    value={educationItem.end_date}
+                    onChange={(e) => handleEditChange(e, index)}
+                  />
+                ) : (
+                  educationItem.end_date
+                )}
+              </span>
+            </div>
+
+            <div className="approval-status">
+              {/* Render the "Approved" button only if not in edit mode */}
+              {!editingIndex && (
+                <button type="submit" className="main-primary-btn">
+                  Approved
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+      <div className="btn-row-education">
+        <button type="submit" className="main-primary-btn">
+          cancel
+        </button>
+        {educationData.map((educationItem, index) => (
+          <div key={educationItem.education_id}>
+            {editingIndex === index ? (
+              // If in edit mode, show "Save" button
+              <button
+                type="submit"
+                className="main-primary-btn"
+                onClick={() => handleSave(index)}
+              >
+                Save
+              </button>
+            ) : (
+              // If not in edit mode, show "Edit" button
+              <button
+                type="submit"
+                className="main-primary-btn"
+                onClick={() => handleEdit(index)}
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          type="submit"
+          className="main-primary-btn"
+          onClick={() => navigate("/education")}
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  );
+};
+export default MainEducation;

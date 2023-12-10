@@ -1,67 +1,182 @@
-import React from 'react';
-import { Link } from "react-router-dom";
-import '../Styles/MainExperience.css';
-
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import "../Styles/MainExperience.css";
 
 const Review = () => {
+  const navigate = useNavigate();
+  const [unapprovedEducationData, setUnapprovedEducationData] = useState([]);
+  const [unapprovedProjectData, setUnapprovedProjectData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUnapprovedEducationData = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost/careercanvas/getUnapprovedEducationData.php"
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setUnapprovedEducationData(data);
+      } else {
+        console.error("Error fetching unapproved education data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+    
+    const fetchUnapprovedProjectData = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost/careercanvas/getUnapprovedProjectData.php"
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          setUnapprovedProjectData(data);
+        } else {
+          console.error("Error fetching unapproved education data");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+
+  useEffect(() => {
+      fetchUnapprovedEducationData();
+      fetchUnapprovedProjectData();
+  }, []);
+
+  const handleSendForReview = async () => {
+    try {
+      for (const educationItem of unapprovedEducationData) {
+        const response = await fetch(
+          "http://localhost/careercanvas/updateEducationReviewStatus.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: "PENDING",
+              id: educationItem.id, // Assuming the unique identifier for the education item
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("Response from server:", responseData);
+        } else {
+          console.error("Error updating review status");
+        }
+      }
+
+      fetchUnapprovedEducationData();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+      
+      try {
+        for (const projectItem of unapprovedProjectData) {
+          const response = await fetch(
+            "http://localhost/careercanvas/updateProjectReviewStatus.php",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                status: "PENDING",
+                id: projectItem.id, // Assuming the unique identifier for the education item
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Response from server:", responseData);
+          } else {
+            console.error("Error updating review status");
+          }
+        }
+
+        fetchUnapprovedProjectData();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+  };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
-      <div className='boarder-container'>
-        
-            <div className="form-student-row">
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail4">EXPERIENCE</label>
-                  </div>
-                  <hr className="long-line"  style={{ width: '100%', border: '1px solid black' }}/>
-            </div>
-
-        <div className='row-grid'>
-
-            <div className='left-side-experience'>
-                <CheckBoxIcon/>
-            </div>
-
-            <div className='right-side'>
-
-                <div className="labels-container">
-                    <label htmlFor="label1">School :</label>
-                    <span id="label1"> Ashesi University</span>
-                </div>
-
-                <div className="labels-container">
-                    <label htmlFor="label1">Program :</label>
-                    <span id="label1"> Computer Science</span>
-                </div>
-
-                <div className="labels-container">
-                    <label htmlFor="label1">Start Date :</label>
-                    <span id="label1"> 12/02/2021</span>
-                </div>
-
-                <div className="labels-container">
-                    <label htmlFor="label1">End Date :</label>
-                    <span id="label1"> 12/02/2021</span>
-                </div> 
-  
-                <div className="labels-container">
-                    <label htmlFor="label1">Description :</label>
-                    <span id="label1">I am a highly motivated and results-driven professional with a proven track record in project management. I have successfully led cross-functional teams to deliver complex projects on time and within budget. My expertise lies in developing and implementing strategic plans, mitigating risks, and ensuring seamless communication among team members and stakeholders. I excel in identifying and leveraging opportunities for process improvement, driving efficiency, and optimizing project workflows. My commitment to excellence and my ability to adapt to dynamic environments make me a valuable asset in achieving project objectives and organizational success. </span>
-                </div>  
-
-            </div>
-
-            <div> 
-                <button className='main-primary-btn'>Approve</button>
-            </div>
+    <div className="boarder-container">
+      <div className="form-student-row">
+        <div className="form-group col-md-6">
+          <label htmlFor="inputEmail4">EDUCATION</label>
         </div>
+        <hr
+          className="long-line"
+          style={{ width: "100%", border: "1px solid black" }}
+        />
+      </div>
 
-        <div className='btn-row-exp'> 
-            <button className='main-primary-btn'>Cancel</button>
-            <button className='main-primary-btn'>Review</button>
-        </div> 
+      {unapprovedEducationData.map((educationItem) => (
+        <div key={educationItem.education_id} className="row-grid">
+          <div className="left-side-experience">
+            <CheckBoxIcon />
+          </div>
 
+          <div className="right-side">
+            <div className="labels-container">
+              <label htmlFor="label1">School :</label>
+              <span id="label1">{educationItem.university_name}</span>
+            </div>
 
+            <div className="labels-container">
+              <label htmlFor="label1">Program :</label>
+              <span id="label1">{educationItem.program_of_study}</span>
+            </div>
 
+            <div className="labels-container">
+              <label htmlFor="label1">Start Date :</label>
+              <span id="label1">{educationItem.start_date}</span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">End Date :</label>
+              <span id="label1">{educationItem.end_date}</span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">Description :</label>
+              <span id="label1">{educationItem.description}</span>
+            </div>
+          </div>
+
+          <div>
+            <button className="main-primary-btn">{educationItem.status}</button>
+          </div>
+        </div>
+      ))}
+
+      <div className="btn-row-exp">
+        <button
+          className="main-primary-btn"
+          onClick={handleSendForReview}
+          disabled={unapprovedEducationData.some((item) => item.status === "PENDING")}
+        >
+          Send All for Review
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,11 +1,34 @@
 import "../Styles/Projects.css";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 
+// Custom hook for authentication
+const useAuthentication = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is authenticated (you can customize this logic)
+    const isUserAuthenticated =
+      sessionStorage.getItem("userRole") === "student";
+    setAuthenticated(isUserAuthenticated);
+  }, []);
+
+  return authenticated;
+};
+
 const Projects = () =>
 {
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthentication();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/projects");
+    }
+  }, [isAuthenticated, navigate]);
+
   const [formData, setFormData] = useState({
     projectName: "",
     projectOwner: "",
@@ -18,7 +41,7 @@ const Projects = () =>
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const studentId = sessionStorage.getItem("studentId");
+        const studentId = sessionStorage.getItem("userId");
 
         if (studentId && !isNaN(studentId)) {
           const response = await fetch(
@@ -44,7 +67,7 @@ const Projects = () =>
     };
 
     fetchStudentData();
-  }, []); // Update the dependency array
+  }, []); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,15 +98,17 @@ const Projects = () =>
         }
       );
 
-      const data = await response.json();
+      
       console.log("Response:", response);
 
       if (response.ok) {
+        const data = await response.json();
         console.log(data.message);
         console.log("Data sent successfully", data);
       } else {
-        console.error(data.error);
+        const errorData = await response.json();
         console.error("Error sending data. Status:", response.status);
+        console.error("Error message:", errorData.error);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -171,9 +196,7 @@ const Projects = () =>
         </div>
 
         <div className="btn-row-project-form">
-          <button type="submit" className="main-primary-btn">
-            cancel
-          </button>
+          
           <button
             type="button"
             className="main-primary-btn"

@@ -3,8 +3,30 @@ import { Link, useNavigate } from "react-router-dom";
 import "../Styles/App.css";
 import "../Styles/Education.css";
 
+// Custom hook for authentication
+const useAuthentication = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is authenticated (you can customize this logic)
+    const isUserAuthenticated =
+      sessionStorage.getItem("userRole") === "student";
+    setAuthenticated(isUserAuthenticated);
+  }, []);
+
+  return authenticated;
+};
+
 const Education = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthentication();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/education");
+    }
+  }, [isAuthenticated, navigate]);
+
   const [formData, setFormData] = useState({
     universityName: "",
     programOfStudy: "",
@@ -16,7 +38,7 @@ const Education = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const studentId = sessionStorage.getItem("studentId");
+        const studentId = sessionStorage.getItem("userId");
 
         if (studentId && !isNaN(studentId)) {
           const response = await fetch(
@@ -42,7 +64,7 @@ const Education = () => {
     };
 
     fetchStudentData();
-  }, []); 
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,126 +93,131 @@ const Education = () => {
           body: JSON.stringify(formData),
         }
       );
-      const data = await response.json();
-      console.log("Response:", response);
 
       if (response.ok) {
+        const data = await response.json();
         console.log(data.message);
         console.log("Data sent successfully", data);
       } else {
-        console.error(data.error);
+        const errorData = await response.json();
         console.error("Error sending data. Status:", response.status);
+        console.error("Error message:", errorData.error);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
-  
   return (
     <div className="boarder-container">
-      <div className="form-archive-row">
-        <div className="form-group col-md-6">
-          <label htmlFor="universityName">University Name</label>
-          <input
-            type="text"
-            className="form-control"
-            id="universityName"
-            name="universityName"
-            value={formData.universityName}
-            onChange={handleChange}
-          />
-        </div>
+      <div>
+        <div className="form-archive-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="universityName">University Name</label>
+            <input
+              type="text"
+              className="form-control"
+              id="universityName"
+              name="universityName"
+              value={formData.universityName}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="form-group col-md-6">
-          <label htmlFor="programOfStudy">Program of Study</label>
-          <select
-            className="form-control"
-            id="programOfStudy"
-            name="programOfStudy"
-            value={formData.programOfStudy}
-            onChange={handleChange}
-          >
-            <option value="" disabled>
-              Select a program
-            </option>
-            <option value="Bsc Computer Science">Bsc Computer Science</option>
-            <option value="Bsc Management Information Systems">
-              Bsc Management Information Systems
-            </option>
-            <option value="Bsc Business Administration">
-              Bsc Business Administration
-            </option>
-            <option value="Bsc Computer Engineering">
-              Bsc Computer Engineering
-            </option>
-            <option value="Bsc Electrical and Electronics Engineering">
-              Bsc Electrical and Electronics Engineering
-            </option>
-            <option value="Bsc Mechanical Engineering">
-              Bsc Mechanical Engineering
-            </option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-      {/* Conditionally render the text input for "Other" option */}
-      {formData.programOfStudy === "Other" && (
-        <div className="form-group col-md-6">
-          <label htmlFor="otherProgramOfStudy">Other Program of Study</label>
-          <input
-            type="text"
-            className="form-control"
-            id="otherProgramOfStudy"
-            name="otherProgramOfStudy"
-            value={formData.otherProgramOfStudy}
-            onChange={handleChange}
-            placeholder="Enter other program of study"
-          />
-        </div>
-      )}
-
-      <div className="form-project-row">
-        <div className="form-group col-md-6">
-          <label htmlFor="startDate">Start Date</label>
-          <input
-            type="date"
-            className="form-control"
-            id="startDate"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group col-md-6">
-          <label htmlFor="endDate">End Date</label>
-          <input
-            type="date"
-            className="form-control"
-            id="endDate"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <input type="hidden" name="student_id" value={formData.student_id} />
-      <div className="form-education-row">
-        <div className="form-group col-md-6">
-          <div className="moveble">
-            <h6>
-              <Link to="/save"> Add New Education Details </Link>
-            </h6>
+          <div className="form-group col-md-6">
+            <label htmlFor="programOfStudy">Program of Study</label>
+            <select
+              className="form-control"
+              id="programOfStudy"
+              name="programOfStudy"
+              value={formData.programOfStudy}
+              onChange={handleChange}
+            >
+              <option value="" disabled>
+                Select a program
+              </option>
+              <option value="Bsc Computer Science">Bsc Computer Science</option>
+              <option value="Bsc Management Information Systems">
+                Bsc Management Information Systems
+              </option>
+              <option value="Bsc Business Administration">
+                Bsc Business Administration
+              </option>
+              <option value="Bsc Computer Engineering">
+                Bsc Computer Engineering
+              </option>
+              <option value="Bsc Electrical and Electronics Engineering">
+                Bsc Electrical and Electronics Engineering
+              </option>
+              <option value="Bsc Mechanical Engineering">
+                Bsc Mechanical Engineering
+              </option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
-      </div>
+        {/* Conditionally render the text input for "Other" option */}
+        {formData.programOfStudy === "Other" && (
+          <div className="form-group col-md-6">
+            <label htmlFor="otherProgramOfStudy">Other Program of Study</label>
+            <input
+              type="text"
+              className="form-control"
+              id="otherProgramOfStudy"
+              name="otherProgramOfStudy"
+              value={formData.otherProgramOfStudy}
+              onChange={handleChange}
+              placeholder="Enter other program of study"
+            />
+          </div>
+        )}
 
-      <div className="btn-row-education-form">
-        <button type="button" className="main-primary-btn" onClick={handleSave}>
-          save
-        </button>
+        <div className="form-project-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="startDate">Start Date</label>
+            <input
+              type="date"
+              className="form-control"
+              id="startDate"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group col-md-6">
+            <label htmlFor="endDate">End Date</label>
+            <input
+              type="date"
+              className="form-control"
+              id="endDate"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* <input type="hidden" name="student_id" value={formData.student_id} /> */}
+        <div className="form-education-row">
+          <div className="form-group col-md-6">
+            <div className="moveble">
+              <h6>
+                <Link to="/save"> Add New Education Details </Link>
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <div className="btn-row-education-form">
+          <button
+            type="button"
+            className="main-primary-btn"
+            onClick={handleSave}
+          >
+            save
+          </button>
+        </div>
       </div>
     </div>
   );

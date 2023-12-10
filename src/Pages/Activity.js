@@ -1,60 +1,177 @@
-import '../Styles/App.css';
-import '../Styles/Activity.css';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../Styles/App.css";
+import "../Styles/Activity.css";
 
-import React from 'react';
+const CoCurriculum = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    activity_name: "",
+    organization_name: "",
+    start_date: "",
+    end_date: "",
+    description: "",
+    student_id: "",
+  });
 
-const CoCurriculum=()=>{
-return (
-        <div className='boarder-container'>
-              <div className="form-project-row">
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail4">Co-Curriculum Activity</label>
-                    <input type="text" className="form-control" id="inputEmail4"/>
-                  </div>
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const studentId = sessionStorage.getItem("studentId");
 
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail">Organization</label>
-                    <input type="text" className="form-control" id="inputEmail4" />
-                  </div>
-              </div>
+        if (studentId && !isNaN(studentId)) {
+          const response = await fetch(
+            `http://localhost/api/student.php?student_id=${studentId}`
+          );
 
-              <div className="form-project-row">
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail4">Start Date</label>
-                    <input type="text" className="form-control" id="inputEmail4"/>
-                  </div>
+          if (response.ok) {
+            const data = await response.json();
+            setFormData((prevData) => ({
+              ...prevData,
+              ...data,
+              student_id: parseInt(studentId),
+            }));
+          } else {
+            console.error("Error fetching student data");
+          }
+        } else {
+          console.error("Invalid or missing studentId in sessionStorage");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
 
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail">End Date</label>
-                    <input type="text" className="form-control" id="inputEmail4" />
-                  </div>
-              </div>     
-    
-            <div className="form-project-row">
-              <div className="form-project-row">
-                  <div className="form-group col-md-6">
-                    <label for="inputEmail4">Co-Curriculum Description</label>
-                    <input type="text" className="form-control" id="description" style={{width: '995px', height: '100px'}}/>
-                  </div>
-              </div>
+    fetchStudentData();
+  }, []);
 
-              <div className="form-project-row">
-                  <div className="form-group col-md-6">
-                    <div className="moveDown"><h6><Link to ="/save"> Add New Co-Curriculum </Link></h6></div>
-                  </div> 
-              </div>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
+  const handleSave = async (e) => {
+    e.preventDefault();
+    console.log("Submitting form data:", formData);
+    if (!formData.student_id) {
+      console.error("Missing student_id in formData");
+      return;
+    }
 
+    try {
+      const response = await fetch("http://localhost/api/curriculum.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      console.log("Response:", response);
 
-            </div>     
+      if (response.ok) {
+        console.log(data.message);
+        console.log("Data sent successfully", data);
+      } else {
+        console.error(data.error);
+        console.error("Error sending data. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
-            <div className="btn-row-activity">
-                    <button type="submit" className="main-primary-btn">cancel</button>
-                    <button type="submit" className="main-primary-btn">save</button>
-              </div>
-
+  return (
+    <div className="boarder-container">
+      <div className="form-project-row">
+        <div className="form-group col-md-6">
+          <label htmlFor="activity_name">Co-Curriculum Activity</label>
+          <input
+            type="text"
+            className="form-control"
+            id="activity_name"
+            name="activity_name"
+            value={formData.activity_name}
+            onChange={handleChange}
+          />
         </div>
-    )
-  }
+
+        <div className="form-group col-md-6">
+          <label htmlFor="organization_name">Organization</label>
+          <input
+            type="text"
+            className="form-control"
+            id="organization_name"
+            name="organization_name"
+            value={formData.organization_name}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div className="form-project-row">
+        <div className="form-group col-md-6">
+          <label htmlFor="start_date">Start Date</label>
+          <input
+            type="date"
+            className="form-control"
+            id="start_date"
+            name="start_date"
+            value={formData.start_date}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group col-md-6">
+          <label htmlFor="end_date">End Date</label>
+          <input
+            type="date"
+            className="form-control"
+            id="end_date"
+            name="end_date"
+            value={formData.end_date}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div className="form-project-row">
+        <div className="form-project-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="description">Co-Curriculum Description</label>
+            <input
+              style={{ width: "995px", height: "100px" }}
+              type="text"
+              className="form-control"
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <input type="hidden" name="student_id" value={formData.student_id} />
+        <div className="form-project-row">
+          <div className="form-group col-md-6">
+            <div className="moveDown">
+              <h6>
+                <Link to="/save"> Add New Co-Curriculum </Link>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="btn-row-activity">
+        <button type="button" className="main-primary-btn" onClick={handleSave}>
+          save
+        </button>
+      </div>
+    </div>
+  );
+};
 export default CoCurriculum;

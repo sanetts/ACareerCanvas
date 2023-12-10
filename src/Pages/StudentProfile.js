@@ -21,7 +21,8 @@ const StudentProfile = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const studentId = sessionStorage.getItem("studentId");
+        const studentId = sessionStorage.getItem("userId");
+        console.log(studentId)
 
         if (studentId && !isNaN(studentId)) {
           const response = await fetch(
@@ -60,6 +61,7 @@ const StudentProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting form data:", formData);
+    
     if (!formData.student_id) {
       console.error("Missing student_id in formData");
       return;

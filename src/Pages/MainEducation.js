@@ -4,8 +4,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import "../Styles/App.css";
 import "../Styles/MainEducation.css";
 
-const MainEducation = () =>
-{
+const MainEducation = () => {
   const navigate = useNavigate();
 
   const [educationData, setEducationData] = useState([]);
@@ -13,12 +12,11 @@ const MainEducation = () =>
   const [editingIndex, setEditingIndex] = useState(null);
 
   // Fetch education data from the backend when the component mounts
-  useEffect(() =>
-  {
-    const fetchData = async () =>
-    {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const studentId = sessionStorage.getItem("studentId");
+        const studentId = sessionStorage.getItem("userId");
+        console.log("Student", studentId);
 
         const response = await fetch(
           `http://localhost/careercanvas/getEducationData.php?student_id=${studentId}`
@@ -57,15 +55,12 @@ const MainEducation = () =>
     });
   };
 
-  const handleEdit = (index) =>
-  {
-
+  const handleEdit = (index) => {
     setEditingIndex(index);
   };
 
-  const handleSave = async (educationItem) =>
-  {
-    // Save the edited data to the backend
+  const handleSave = async (educationItem) => {
+    
     try {
       const response = await fetch(
         "http://localhost/careercanvas/editEducationData.php",
@@ -82,8 +77,6 @@ const MainEducation = () =>
 
       if (response.ok) {
         console.log(data.message);
-      
-        
       } else {
         console.error("Error updating record:", data.error);
       }
@@ -91,6 +84,43 @@ const MainEducation = () =>
       console.error("Error:", error);
     }
   };
+
+  if (
+    !Array.isArray(educationData) ||
+    educationData.length === 0 ||
+    educationData.message
+  ) {
+    return (
+      <div className="boarder-container">
+        <div className="form-student-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="inputEmail4">EDUCATION</label>
+            <hr
+              className="long-line"
+              style={{ width: "100%", border: "1px solid black" }}
+            />
+          </div>
+        </div>
+        <div className="right-side">
+          <div className="labels-container">
+            <label htmlFor="label1">
+              {educationData.message || "No education data found"}
+            </label>
+          </div>
+        </div>
+
+        <div className="btn-row-education">
+          <button
+            type="submit"
+            className="main-primary-btn"
+            onClick={() => navigate("/education")}
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="boarder-container">
@@ -180,45 +210,44 @@ const MainEducation = () =>
                   Approved
                 </button>
               )}
+              {/* Render the "Save" button if in edit mode, otherwise render the "Edit" button */}
+              {editingIndex === index ? (
+                <button
+                  type="button"
+                  className="main-primary-btn"
+                  onClick={() => handleSave(educationItem)}
+                >
+                  Save
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="main-primary-btn"
+                  onClick={() => handleEdit(index)}
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
         </div>
       ))}
+
+      {/* Always display the "Add" button */}
+
       <div className="btn-row-education">
-        <button type="submit" className="main-primary-btn">
-          cancel
-        </button>
-        {educationData.map((educationItem, index) => (
-          <div key={educationItem.education_id}>
-            {editingIndex === index ? (
-              // If in edit mode, show "Save" button
-              <button
-                type="submit"
-                className="main-primary-btn"
-                onClick={() => handleSave(educationItem)}
-              >
-                Save
-              </button>
-            ) : (
-              // If not in edit mode, show "Edit" button
-              <button
-                type="submit"
-                className="main-primary-btn"
-                onClick={() => handleEdit(index)}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        ))}
-        <button
-          type="submit"
-          className="main-primary-btn"
-          onClick={() => navigate("/education")}
-        >
-          Add
-        </button>
+        <div className="sticky-footer">
+          <button
+            type="submit"
+            className="main-primary-btn"
+            onClick={() => navigate("/education")}
+          >
+            Add
+          </button>
+        </div>
       </div>
+
+
     </div>
   );
 };

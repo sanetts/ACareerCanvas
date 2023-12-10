@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -8,8 +9,16 @@ const Login = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
-    role: "student", // Default role is set to "student"
+    role: "student",
   });
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    const storedUserRole = sessionStorage.getItem("userRole");
+    if (storedUserRole) {
+      setUserRole(storedUserRole);
+    }
+  }, []); 
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,6 +30,7 @@ const Login = () => {
 
   const authenticateUser = async () => {
     const { email, password, role } = data;
+    console.log(data)
 
     try {
       const response = await axios.post(
@@ -37,9 +47,12 @@ const Login = () => {
         // Extract and set user's role
         const userRole = response.data.role;
         setUserRole(userRole);
+        
 
         // Set user ID and role in sessionStorage
-        sessionStorage.setItem("userId", response.data.user_id);
+        
+        sessionStorage.setItem("userId", response.data.student_id);
+        console.log(response.data.student_id)
         sessionStorage.setItem("userRole", userRole);
 
         // Redirect based on role
@@ -48,14 +61,32 @@ const Login = () => {
             navigate("/studentprofile");
             break;
           case "cpa":
-            navigate("/cpaprofile");
+            navigate("/adminpage");
             break;
           default:
             console.error("Invalid role");
         }
       } else {
-        setError("Invalid email, password, or role. Please try again.");
-        console.error("Login failed");
+        console.log(response.data);
+        if (
+          response.status === 200 &&
+          response.data.error.includes("Invalid email")
+        ) {
+          setError("Invalid email. Please try again.");
+        } else if (
+          response.status === 200 &&
+          response.data.error.includes("Invalid Password")
+        ) {
+          setError("Invalid Password. Please try again.");
+        } else if (
+          response.status === 200 &&
+          response.data.error.includes("Role does not match")
+        ) {
+          setError("Role does not match. Please try again.");
+        } else {
+          setError("An error occurred. Please try again later.");
+          console.error("Login failed");
+        }
       }
     } catch (error) {
       setError("An error occurred during login. Please try again later.");
@@ -125,7 +156,7 @@ const Login = () => {
               onChange={handleChange}
               value={data.role}
             >
-              <option value="student">Student</option>
+              <option value="student">student</option>
               <option value="cpa">Career Peer Advisor</option>
             </select>
           </div>

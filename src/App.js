@@ -24,7 +24,8 @@ import Review from "./Pages/Review";
 import Admin from "./Pages/Admin";
 import Display from "./Pages/Display"
 import AdminPage from "./Pages/adminpage"
-
+import CPAdashboard from "./Pages/cpadashboard";
+import CPAHeaderNavbar from "./Components/cpaNavbar";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
             {/* Admin page */}
             <Route path="/admin" element={<Admin />} />
             <Route path="/adminpage" element={<AdminPage />} />
+            <Route path="/cpadashboard" element={<CPAdashboard />} />
           </Routes>
         </switch>
       </div>

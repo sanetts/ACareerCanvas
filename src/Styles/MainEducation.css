@@ -3,7 +3,18 @@
   justify-content: space-between;
   margin-top: 320px;
 }
+/* Scrollable container */
+.scrollable-container {
+  max-height: 400px; /* Adjust the maximum height as needed */
+  overflow-y: auto;
+}
 
+/* Sticky footer */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
 
 /* .row-education {
   display: grid;

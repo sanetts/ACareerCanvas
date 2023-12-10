@@ -11,11 +11,13 @@ const Register = () => {
     email: "",
     password: "",
     role: "student", // Default role as 'student'
-    invitationCode: "", 
+    invitationCode: "",
   });
 
   const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setData((prevData) => ({ ...prevData, [name]: value }));
+    console.log(value); // Log the current value
   };
 
   const handleSubmit = async (e) => {
@@ -30,6 +32,7 @@ const Register = () => {
       console.error("All fields are required");
       return;
     }
+    
 
     try {
       // Validate the invitation code if the role is CPA
@@ -41,11 +44,13 @@ const Register = () => {
             email: data.email,
           }
         );
-
+          
         if (
           validateInvitationResponse.status !== 200 ||
           !validateInvitationResponse.data.valid
         ) {
+          console.log(validateInvitationResponse.data.valid);
+          console.log("Invitation Code:", data.invitationCode);
           console.error("Invalid invitation code or email");
           return;
         }
@@ -59,7 +64,7 @@ const Register = () => {
 
       if (response.status === 200) {
         console.log("Data sent successfully");
-        { /* navigate("/login");*/}
+        navigate("/login");
       } else {
         console.error("Error sending data");
       }
@@ -140,7 +145,7 @@ const Register = () => {
               value={data.role}
             >
               <option value="student">Student</option>
-              <option value="cpa">Career Peer Advisor</option>
+              <option value="cpa">cpa</option>
             </select>
           </div>
         </div>

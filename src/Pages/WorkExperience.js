@@ -9,7 +9,7 @@ return (
         <div className='boarder-container'>
               <div className="form-project-row">
                   <div className="form-group col-md-6">
-                    <label for="inputEmail4">Job Tittle</label>
+                    <label for="inputEmail4">Job Title</label>
                     <input type="text" className="form-control" id="inputEmail4"/>
                   </div>
 
