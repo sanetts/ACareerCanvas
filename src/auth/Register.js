@@ -63,6 +63,7 @@ const Register = () => {
       );
 
       if (response.status === 200) {
+        
         console.log("Data sent successfully");
         navigate("/login");
       } else {

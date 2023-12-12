@@ -4,32 +4,24 @@ import { Link } from "react-router-dom";
 import "../Styles/Admin.css";
 import "../Styles/App.css";
 
-const CPAReview= () => {
-  const [reviewData, setReviewData] = useState([]);
+const CPADashboard = () => {
+  const [assignedItems, setAssignedItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchReviewData = async () => {
+  const fetchAssignedItems = async () => {
     try {
-      // Fetch education entries assigned to the logged-in CPA
+      // Get the CPA ID from sessionStorage
+      const cpaId = sessionStorage.getItem("cpaId");
+
       const response = await fetch(
-        "http://localhost/careercanvas/getCPAReviewData.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // Assuming you send the CPA ID in the request body
-          body: JSON.stringify({
-            cpa_id: loggedInCPAId,
-          }),
-        }
+        `http://localhost/careercanvas/getAssignedItems.php?cpaId=${cpaId}`
       );
       const data = await response.json();
 
       if (response.ok) {
-        setReviewData(data);
+        setAssignedItems(data);
       } else {
-        console.error("Error fetching review data");
+        console.error("Error fetching assigned items");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -39,7 +31,7 @@ const CPAReview= () => {
   };
 
   useEffect(() => {
-    fetchReviewData();
+    fetchAssignedItems();
   }, []);
 
   if (loading) {
@@ -48,25 +40,50 @@ const CPAReview= () => {
 
   return (
     <div className="boarder-container">
-      {/* Render education entries assigned to the logged-in CPA */}
-      {reviewData.map((reviewItem) => (
-        <div key={reviewItem.id} className="row-cpa">
-          {/* Display education entry details */}
-          <div>
+      <div className="form-student-row">
+        <div className="form-group col-md-6">
+          <label htmlFor="inputEmail4">EDUCATION</label>
+        </div>
+        <hr
+          className="long-line"
+          style={{ width: "100%", border: "1px solid black" }}
+        />
+      </div>
+
+      {assignedItems.map((assignedItem) => (
+        <div key={assignedItem.assignment_id} className="row-cpa">
+          <div className="right-side">
             <div className="labels-container">
               <label htmlFor="label1">School :</label>
-              <span id="label1">{reviewItem.university_name}</span>
+              <span id="label1">{assignedItem.university_name}</span>
             </div>
-            {/* ... other details ... */}
+
+            <div className="labels-container">
+              <label htmlFor="label1">Program :</label>
+              <span id="label1">{assignedItem.program_of_study}</span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">Start Date :</label>
+              <span id="label1">{assignedItem.start_date}</span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">End Date :</label>
+              <span id="label1">{assignedItem.end_date}</span>
+            </div>
+
+            <div className="labels-container">
+              <label htmlFor="label1">Description :</label>
+              <span id="label1">{assignedItem.description}</span>
+            </div>
           </div>
 
-          {/* Display comments section */}
           <div className="left-side-admin">
             <label htmlFor="label1">Add Comments :</label>
             <input className="comments" />
           </div>
 
-          {/* Display approval/decline buttons */}
           <div className="left-side-admin">
             <div>
               <button className="main-primary-btn" id="first">
@@ -81,7 +98,6 @@ const CPAReview= () => {
       ))}
 
       <div className="btn-row-admin">
-        {/* Add a link to the review page for CPAs */}
         <Link to="/review">
           <button className="main-primary-btn">Review</button>
         </Link>
@@ -90,4 +106,4 @@ const CPAReview= () => {
   );
 };
 
-export default CPAReview;
+export default CPADashboard;

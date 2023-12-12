@@ -32,13 +32,14 @@ const Education = () => {
     programOfStudy: "",
     startDate: "",
     endDate: "",
-    student_id: "",
+    student_id: ""
   });
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         const studentId = sessionStorage.getItem("userId");
+        
 
         if (studentId && !isNaN(studentId)) {
           const response = await fetch(

@@ -7,64 +7,96 @@ const Review = () => {
   const navigate = useNavigate();
   const [unapprovedEducationData, setUnapprovedEducationData] = useState([]);
   const [unapprovedProjectData, setUnapprovedProjectData] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+     const [formData, setFormData] = useState({});
 
-  const fetchUnapprovedEducationData = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost/careercanvas/getUnapprovedEducationData.php"
-      );
-      const data = await response.json();
-
-        if (response.ok) {
-          const educationDataWithCPA = data.map((item) => ({
-          ...item,
-          cpaId:"",
-        }));
-          setUnapprovedEducationData(data);
-          
-      } else {
-        console.error("Error fetching unapproved education data");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
     
-    const fetchUnapprovedProjectData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost/careercanvas/getUnapprovedProjectData.php"
-        );
-        const data = await response.json();
+ const fetchUnapprovedEducationData = async () => {
+   try {
+     const studentId = sessionStorage.getItem("userId");
 
-          if (response.ok) {
-            const projectDataWithCPA = data.map((item) => ({
-              ...item,
-              cpaId: "",
-            }));
-          setUnapprovedProjectData(data);
-        } else {
-          console.error("Error fetching unapproved education data");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
+     const response = await fetch(
+       `http://localhost/careercanvas/getUnapprovedEducationData.php?student_id=${studentId}`
+     );
+     const data = await response.json();
+
+     if (response.ok) {
+       setUnapprovedEducationData(data);
+     } else {
+       console.error("Error fetching unapproved education data");
+     }
+   } catch (error) {
+     console.error("Error:", error);
+   } finally {
+     setLoading(false);
+   }
+ };
+
+ const fetchUnapprovedProjectData = async () => {
+   try {
+     const studentId = sessionStorage.getItem("userId");
+
+     const response = await fetch(
+       `http://localhost/careercanvas/getUnapprovedProjectData.php?student_id=${studentId}`
+     );
+     const data = await response.json();
+
+     if (response.ok) {
+       setUnapprovedProjectData(data);
+     } else {
+       console.error("Error fetching unapproved project data");
+     }
+   } catch (error) {
+     console.error("Error:", error);
+   } finally {
+     setLoading(false);
+   }
+ };
+
 
   useEffect(() => {
       fetchUnapprovedEducationData();
       fetchUnapprovedProjectData();
   }, []);
 
+    
+    useEffect(() => {
+      const fetchStudentData = async () => {
+        try {
+          const studentId = sessionStorage.getItem("userId");
+
+          if (studentId && !isNaN(studentId)) {
+            const response = await fetch(
+              `http://localhost/careercanvas/student.php?student_id=${studentId}`
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              setFormData((prevData) => ({
+                ...prevData,
+                ...data,
+                student_id: parseInt(studentId),
+              }));
+            } else {
+              console.error("Error fetching student data");
+            }
+          } else {
+            console.error("Invalid or missing studentId in sessionStorage");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+
+      fetchStudentData();
+    }, []);
   const handleSendForReview = async () => {
-    try {
-      for (const educationItem of unapprovedEducationData) {
+      try {
+        
+          
+        for (const educationItem of unapprovedEducationData) {
+          
+            
         const response = await fetch(
           "http://localhost/careercanvas/updateEducationReviewStatus.php",
           {
@@ -74,7 +106,7 @@ const Review = () => {
             },
             body: JSON.stringify({
               status: "PENDING",
-              id: educationItem.id, 
+              id: educationItem.id,
             }),
           }
         );
@@ -83,7 +115,11 @@ const Review = () => {
           const responseData = await response.json();
           console.log("Response from server:", responseData);
         } else {
-          console.error("Error updating review status");
+            console.error("Error updating review status");
+            console.error(
+              "Error updating review status:",
+              await response.text()
+            );
         }
       }
 
@@ -91,6 +127,11 @@ const Review = () => {
     } catch (error) {
       console.error("Error:", error);
     }
+      
+      
+      
+      
+      
       
       try {
         for (const projectItem of unapprovedProjectData) {

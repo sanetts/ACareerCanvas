@@ -22,7 +22,7 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userRole, setUserRole] = useState(""); // State to store user's role
+  const [userRole, setUserRole] = useState(""); 
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -46,6 +46,7 @@ const Login = () => {
 
         // Extract and set user's role
         const userRole = response.data.role;
+        const cpaId = response.data.cpa_id; 
         setUserRole(userRole);
         
 
@@ -54,6 +55,10 @@ const Login = () => {
         sessionStorage.setItem("userId", response.data.student_id);
         console.log(response.data.student_id)
         sessionStorage.setItem("userRole", userRole);
+
+        if (userRole === "cpa" && cpaId) {
+          sessionStorage.setItem("cpaId", cpaId);
+        }
 
         // Redirect based on role
         switch (userRole) {
