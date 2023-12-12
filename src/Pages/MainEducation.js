@@ -206,8 +206,8 @@ const MainEducation = () => {
             <div className="approval-status">
               {/* Render the "Approved" button only if not in edit mode */}
               {!editingIndex && (
-                <button type="submit" className="main-primary-btn">
-                  Approved
+                <button className="main-primary-btn">
+                  {educationItem.status}
                 </button>
               )}
               {/* Render the "Save" button if in edit mode, otherwise render the "Edit" button */}
@@ -246,8 +246,6 @@ const MainEducation = () => {
           </button>
         </div>
       </div>
-
-
     </div>
   );
 };

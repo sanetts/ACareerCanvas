@@ -12,7 +12,7 @@ const CPADashboard = () => {
   const fetchReviewData = async () => {
     try {
       const response = await fetch(
-        "http://localhost/careercanvas/getReviewData.php" // Replace with your API endpoint
+        "http://localhost/careercanvas/getPendingEducationData.php" 
       );
       const data = await response.json();
 

@@ -98,17 +98,16 @@ const Projects = () =>
         }
       );
 
-      
+      const data = await response.json();
       console.log("Response:", response);
 
       if (response.ok) {
-        const data = await response.json();
         console.log(data.message);
         console.log("Data sent successfully", data);
       } else {
-        const errorData = await response.json();
+        console.log(data.message);
+        console.error(data.error);
         console.error("Error sending data. Status:", response.status);
-        console.error("Error message:", errorData.error);
       }
     } catch (error) {
       console.error("Error:", error);

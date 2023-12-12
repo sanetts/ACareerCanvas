@@ -11,6 +11,7 @@ const MainProject = () => {
   const [projectData, setProjectData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   // Fetch education data from the backend when the component mounts
   useEffect(() => {
@@ -42,6 +43,67 @@ const MainProject = () => {
   if (loading) {
     return <p>Loading...</p>; 
   }
+
+  const handleCheckboxChange = (project_id) => {
+    setSelectedItems((prevSelectedItems) => {
+      const isAlreadySelected = prevSelectedItems.includes(project_id);
+
+      if (isAlreadySelected) {
+        return prevSelectedItems.filter((id) => id !== project_id);
+      } else {
+        return [...prevSelectedItems, project_id];
+      }
+    });
+  };
+
+  const handleCheckAll = () => {
+    const allExperienceIds = projectData.map((item) => item.project_id);
+    setSelectedItems(allExperienceIds);
+  };
+
+  const handleUncheckAll = () => {
+    setSelectedItems([]);
+  };
+
+
+    const handleCheckSubmit = async (e) => {
+      e.preventDefault();
+      console.log("Submitting form data:", projectData);
+      console.log(projectData[0].student_id);
+      console.log(projectData[0].end_date);
+      if (!projectData[0].student_id) {
+        console.error("Missing student_id in projectData");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost/api/project_cv.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectData[0]),
+        });
+
+        const data = await response.json();
+        console.log("Response:", response);
+
+        if (response.ok) {
+          console.log(data.message);
+          console.log("Data sent successfully", data);
+        } else {
+          console.error(data.error);
+          console.error("Error sending data. Status:", response.status);
+        }
+      } catch (error) {
+        console.log("Error");
+        //console.error("Error:", error);
+      }
+    };
+
+
+
+
 
   const handleEditChange = (e, index, fieldName) => {
     const { value } = e.target;
@@ -136,12 +198,17 @@ const MainProject = () => {
       </div>
       {projectData.map((projectItem, index) => (
         <div div key={projectItem.project_id} className="row-grid">
-          <div className="left-side-project">
-            <CheckBoxIcon />
-          </div>
+          
+          {/* <div className='left-side-project'>
+            <CheckBoxIcon
+              color={selectedItems.includes(projectItem.project_id) ? "primary" : "disabled"}
+              onClick={() => handleCheckboxChange(projectItem.project_id)}
+            />
+         
+          </div> */}
 
           <div className="right-side">
-            <div className="labels-container">
+            <div className="labels-container-project">
               <label htmlFor="label1">Project Name : </label>
               <span id="label1">
                 {editingIndex === index ? (
@@ -163,7 +230,9 @@ const MainProject = () => {
                   <input
                     type="text"
                     value={projectData[index].project_owner}
-                    onChange={(e) => handleEditChange(e, index, "project_owner")}
+                    onChange={(e) =>
+                      handleEditChange(e, index, "project_owner")
+                    }
                   />
                 ) : (
                   projectItem.project_owner
@@ -222,9 +291,7 @@ const MainProject = () => {
           <div>
             {/* Render the "Approved" button only if not in edit mode */}
             {!editingIndex && (
-              <button type="submit" className="main-primary-btn">
-                Approved
-              </button>
+              <button className="main-primary-btn">{projectItem.status}</button>
             )}
             {/* Render the "Save" button if in edit mode, otherwise render the "Edit" button */}
             {editingIndex === index ? (
@@ -248,8 +315,31 @@ const MainProject = () => {
         </div>
       ))}
       ;{/* Always display the "Add" button */}
-      <div className="btn-row-education">
-        <div className="sticky-footer">
+      
+        <div className="btn-row-project">
+          <button
+            type="button"
+            className="main-primary-btn"
+            onClick={handleCheckAll}
+          >
+            Check All
+          </button>
+          <button
+            type="button"
+            className="main-primary-btn"
+            onClick={handleUncheckAll}
+          >
+            Uncheck All
+          </button>
+          <button
+            type="button"
+            className="main-primary-btn"
+            onClick={handleCheckSubmit}
+          >
+            Submit Checked
+          </button>
+        </div>
+        <div >
           <button
             type="submit"
             className="main-primary-btn"
@@ -259,7 +349,7 @@ const MainProject = () => {
           </button>
         </div>
       </div>
-    </div>
+    
   );
 };
 

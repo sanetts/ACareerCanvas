@@ -26,6 +26,7 @@ import Display from "./Pages/Display"
 import AdminPage from "./Pages/adminpage"
 import CPAdashboard from "./Pages/cpadashboard";
 import CPAHeaderNavbar from "./Components/cpaNavbar";
+import PendingReview from "./Pages/PendingReview";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
             <Route path="/mainachievement" element={<MainAchievement />} />
             <Route path="/display" element={<Display />} />
             <Route path="/review" element={<Review />} />
+            <Route path="/pendingreview" element={<PendingReview />} />
 
             {/* Admin page */}
             <Route path="/admin" element={<Admin />} />

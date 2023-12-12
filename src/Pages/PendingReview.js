@@ -3,28 +3,23 @@ import { useNavigate } from "react-router-dom";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import "../Styles/MainExperience.css";
 
-const Review = () => {
+const PendingReview = () => {
   const navigate = useNavigate();
-  const [unapprovedEducationData, setUnapprovedEducationData] = useState([]);
-  const [unapprovedProjectData, setUnapprovedProjectData] = useState([]);
+  const [pendingEducationData, setPendingEducationData] = useState([]);
+  const [pendingProjectData, setPendingProjectData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUnapprovedEducationData = async () => {
+  const fetchPendingEducationData = async () => {
     try {
       const response = await fetch(
-        "http://localhost/careercanvas/getUnapprovedEducationData.php"
+        "http://localhost/careercanvas/getPendingEducationData.php"
       );
       const data = await response.json();
 
-        if (response.ok) {
-          const educationDataWithCPA = data.map((item) => ({
-          ...item,
-          cpaId:"",
-        }));
-          setUnapprovedEducationData(data);
-          
+      if (response.ok) {
+        setPendingEducationData(data);
       } else {
-        console.error("Error fetching unapproved education data");
+        console.error("Error fetching pending education data");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -32,95 +27,32 @@ const Review = () => {
       setLoading(false);
     }
   };
-    
-    const fetchUnapprovedProjectData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost/careercanvas/getUnapprovedProjectData.php"
-        );
-        const data = await response.json();
 
-          if (response.ok) {
-            const projectDataWithCPA = data.map((item) => ({
-              ...item,
-              cpaId: "",
-            }));
-          setUnapprovedProjectData(data);
-        } else {
-          console.error("Error fetching unapproved education data");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-
-  useEffect(() => {
-      fetchUnapprovedEducationData();
-      fetchUnapprovedProjectData();
-  }, []);
-
-  const handleSendForReview = async () => {
+  const fetchPendingProjectData = async () => {
     try {
-      for (const educationItem of unapprovedEducationData) {
-        const response = await fetch(
-          "http://localhost/careercanvas/updateEducationReviewStatus.php",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              status: "PENDING",
-              id: educationItem.id, 
-            }),
-          }
-        );
+      const response = await fetch(
+        "http://localhost/careercanvas/getPendingProjectData.php"
+      );
+      const data = await response.json();
 
-        if (response.ok) {
-          const responseData = await response.json();
-          console.log("Response from server:", responseData);
-        } else {
-          console.error("Error updating review status");
-        }
+      if (response.ok) {
+        setPendingProjectData(data);
+      } else {
+        console.error("Error fetching pending education data");
       }
-
-      fetchUnapprovedEducationData();
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
-      
-      try {
-        for (const projectItem of unapprovedProjectData) {
-          const response = await fetch(
-            "http://localhost/careercanvas/updateProjectReviewStatus.php",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                status: "PENDING",
-                id: projectItem.project_id, 
-              }),
-            }
-          );
-
-          if (response.ok) {
-            const responseData = await response.json();
-            console.log("Response from server:", responseData);
-          } else {
-            console.error("Error updating review status");
-          }
-        }
-
-        fetchUnapprovedProjectData();
-      } catch (error) {
-        console.error("Error:", error);
-      }
   };
+
+  useEffect(() => {
+    fetchPendingEducationData();
+    fetchPendingProjectData();
+  }, []);
+
+
 
   if (loading) {
     return <p>Loading...</p>;
@@ -128,7 +60,7 @@ const Review = () => {
 
   return (
     <div className="boarder-container">
-      {unapprovedEducationData.map((educationItem) => (
+      {pendingEducationData.map((educationItem) => (
         <div>
           <div className="form-student-row">
             <div className="form-group col-md-6">
@@ -175,7 +107,7 @@ const Review = () => {
         </div>
       ))}
 
-      {unapprovedProjectData.map((projectItem) => (
+      {pendingProjectData.map((projectItem) => (
         <div>
           <div className="form-student-row">
             <div className="form-group col-md-6">
@@ -226,20 +158,9 @@ const Review = () => {
         </div>
       ))}
 
-      <div className="btn-row-exp">
-        <button
-          className="main-primary-btn"
-          onClick={handleSendForReview}
-          disabled={
-            unapprovedEducationData.some((item) => item.status === "PENDING") &&
-            unapprovedProjectData.some((item) => item.status === "PENDING")
-          }
-        >
-          Send All for Review
-        </button>
-      </div>
+      
     </div>
   );
 };
 
-export default Review;
+export default PendingReview;
