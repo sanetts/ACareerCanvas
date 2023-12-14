@@ -40,6 +40,7 @@ const Education = () => {
       try {
         const studentId = sessionStorage.getItem("userId");
         
+        
 
         if (studentId && !isNaN(studentId)) {
           const response = await fetch(

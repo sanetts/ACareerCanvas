@@ -16,9 +16,9 @@ const MainEducation = () => {
     const fetchData = async () => {
       try {
         const studentId = sessionStorage.getItem("userId");
-        const cpaId = sessionStorage.getItem("cpaId");
+        // const cpaId = sessionStorage.getItem("cpaId");
         console.log("Student", studentId);
-        console.log("Student", studentId);
+        // console.log("Student", studentId);
 
         const response = await fetch(
           `http://localhost/careercanvas/getEducationData.php?student_id=${studentId}`

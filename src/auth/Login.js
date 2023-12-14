@@ -46,7 +46,7 @@ const Login = () => {
 
         // Extract and set user's role
         const userRole = response.data.role;
-        const cpaId = response.data.cpa_id; 
+        // const cpaId = response.data.cpa_id; 
         setUserRole(userRole);
         
 
@@ -56,8 +56,12 @@ const Login = () => {
         console.log(response.data.student_id)
         sessionStorage.setItem("userRole", userRole);
 
-        if (userRole === "cpa" && cpaId) {
-          sessionStorage.setItem("cpaId", cpaId);
+        if (userRole === "cpa") {
+          sessionStorage.setItem("userId", response.data.student_id);
+          console.log(response.data.student_id);
+        // const studentId = response.data.student_id;
+          //sessionStorage.setItem("cpaId", cpaId);
+          //console.log(cpaId)
         }
 
         // Redirect based on role

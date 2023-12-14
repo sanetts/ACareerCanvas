@@ -21,12 +21,11 @@ const Review = () => {
      const data = await response.json();
 
      if (response.ok) {
-       setUnapprovedEducationData(data);
-     } else {
-       console.error("Error fetching unapproved education data");
+         setUnapprovedEducationData(data);
      }
    } catch (error) {
-     console.error("Error:", error);
+       console.error("Error:", error);
+        console.error("Error fetching unapproved education data");
    } finally {
      setLoading(false);
    }
@@ -92,10 +91,10 @@ const Review = () => {
     }, []);
   const handleSendForReview = async () => {
       try {
-        
+        const studentId = sessionStorage.getItem("userId");
           
         for (const educationItem of unapprovedEducationData) {
-          
+          console.log("Processing educationItem:", educationItem);
             
         const response = await fetch(
           "http://localhost/careercanvas/updateEducationReviewStatus.php",
@@ -107,9 +106,14 @@ const Review = () => {
             body: JSON.stringify({
               status: "PENDING",
               id: educationItem.id,
+              studentId: studentId,
             }),
           }
         );
+            const responseBody = await response.text(); // Log the response body
+            console.log("Response Body:", responseBody);
+
+            
 
         if (response.ok) {
           const responseData = await response.json();
@@ -148,7 +152,10 @@ const Review = () => {
               }),
             }
           );
-
+if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+//   const data = await response.json();
           if (response.ok) {
             const responseData = await response.json();
             console.log("Response from server:", responseData);
