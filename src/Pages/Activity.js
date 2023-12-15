@@ -12,6 +12,8 @@ const CoCurriculum = () => {
     end_date: "",
     description: "",
     student_id: "",
+    descriptionone: "",
+    descriptiontwo: "",
   });
 
   useEffect(() => {
@@ -38,7 +40,7 @@ const CoCurriculum = () => {
           console.error("Invalid or missing studentId in sessionStorage");
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error");
       }
     };
 
@@ -114,9 +116,9 @@ const CoCurriculum = () => {
 
       <div className="form-project-row">
         <div className="form-group col-md-6">
-          <label htmlFor="start_date">Start Date</label>
+          <label htmlFor="start_date">Start Date (Month and Year)</label>
           <input
-            type="date"
+            type="text"
             className="form-control"
             id="start_date"
             name="start_date"
@@ -126,9 +128,9 @@ const CoCurriculum = () => {
         </div>
 
         <div className="form-group col-md-6">
-          <label htmlFor="end_date">End Date</label>
+          <label htmlFor="end_date">End Date (Month and Year)</label>
           <input
-            type="date"
+            type="text"
             className="form-control"
             id="end_date"
             name="end_date"
@@ -141,14 +143,45 @@ const CoCurriculum = () => {
       <div className="form-project-row">
         <div className="form-project-row">
           <div className="form-group col-md-6">
-            <label htmlFor="description">Co-Curriculum Description</label>
+            <label htmlFor="description">Co-Curriculum Description One</label>
             <input
-              style={{ width: "995px", height: "100px" }}
               type="text"
               className="form-control"
               id="description"
               name="description"
               value={formData.description}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-project-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="descriptionone">
+              Co-Curriculum Description Two
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="descriptionone"
+              name="descriptionone"
+              value={formData.descriptionone}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-project-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="descriptiontwo">
+              Co-Curriculum Description Three
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="descriptiontwo"
+              name="descriptiontwo"
+              value={formData.descriptiontwo}
               onChange={handleChange}
             />
           </div>

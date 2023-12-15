@@ -76,6 +76,10 @@ const Education = () => {
     });
   };
 
+   const handleBack = (e) => {
+     navigate("/maineducation");
+   };
+
   const handleSave = async (e) => {
     e.preventDefault();
     console.log("Submitting form data:", formData);
@@ -83,6 +87,7 @@ const Education = () => {
       console.error("Missing student_id in formData");
       return;
     }
+
 
     try {
       const response = await fetch(
@@ -98,7 +103,10 @@ const Education = () => {
 
       if (response.ok) {
         const data = await response.json();
+        navigate("/maineducation");
+        
         console.log(data.message);
+
         console.log("Data sent successfully", data);
       } else {
         const errorData = await response.json();
@@ -205,7 +213,7 @@ const Education = () => {
           <div className="form-group col-md-6">
             <div className="moveble">
               <h6>
-                <Link to="/save"> Add New Education Details </Link>
+                <Link to="/education"> Add New Education Details </Link>
               </h6>
             </div>
           </div>
@@ -219,6 +227,13 @@ const Education = () => {
           >
             save
           </button>
+          <button
+            type="submit"
+            className="main-primary-btn"
+            onClick={handleBack}
+          >
+            Back
+          </button>
         </div>
       </div>
     </div>
@@ -226,3 +241,16 @@ const Education = () => {
 };
 
 export default Education;
+
+//  const handleBack = (e) => {
+//    navigate("/maineducation");
+//  };
+
+{/* <button
+            type="submit"
+            className="main-primary-btn"
+            onClick={handleBack}
+          >
+            Back
+          </button> */}
+        

@@ -2,9 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Styles/App.css";
 import "../Styles/Achievements.css";
+const useAuthentication = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is authenticated (you can customize this logic)
+    const isUserAuthenticated =
+      sessionStorage.getItem("userRole") === "student";
+    setAuthenticated(isUserAuthenticated);
+  }, []);
+
+  return authenticated;
+};
 
 const Achievements = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     achievement_name: "",
     organization_name: "",
@@ -36,7 +49,7 @@ const Achievements = () => {
           console.error("Invalid or missing studentId in sessionStorage");
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error");
       }
     };
 
@@ -46,9 +59,13 @@ const Achievements = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
-      formData,
+      ...formData,
       [name]: value,
     });
+  };
+
+  const handleBack = (e) => {
+    navigate("/mainachievement");
   };
 
   const handleSave = async (e) => {
@@ -61,13 +78,16 @@ const Achievements = () => {
     }
 
     try {
-      const response = await fetch("http://localhost/api/achievements.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://localhost/api/postAchievements.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
       console.log("Response:", response);
 
@@ -124,12 +144,7 @@ const Achievements = () => {
           />
         </div>
 
-        <input
-          type="hidden"
-          name="student_id"
-          value={formData.student_id}
-          onChange={handleChange}
-        />
+        <input type="hidden" name="student_id" value={formData.student_id} />
         <div className="form-project-row">
           <div className="form-group col-md-6">
             <div className="moveUp">
@@ -142,6 +157,10 @@ const Achievements = () => {
       </div>
 
       <div className="btn-row-education-form">
+        <button className="main-primary-btn" onClick={handleBack}>
+          Back
+        </button>
+
         <button type="button" className="main-primary-btn" onClick={handleSave}>
           save
         </button>
