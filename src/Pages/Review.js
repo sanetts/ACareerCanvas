@@ -133,10 +133,6 @@ const Review = () => {
     }
       
       
-      
-      
-      
-      
       try {
         for (const projectItem of unapprovedProjectData) {
           const response = await fetch(

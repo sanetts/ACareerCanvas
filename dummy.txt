@@ -345,3 +345,105 @@ const MainEducation = () =>
   );
 };
 export default MainEducation;
+
+
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+import "../Styles/Admin.css";
+import "../Styles/App.css";
+
+const CPADashboard = () => {
+  const [assignedItems, setAssignedItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState(
+    assignedItems.map((item) => ({
+      assignmentId: item.assignment_id,
+      comment: "",
+    }))
+  );
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const studentId = sessionStorage.getItem("userId");
+
+    const fetchAssignedItems = async (studentId) => {
+      try {
+        const response = await fetch(
+          `http://localhost/careercanvas/getAssignedItems.php?studentId=${studentId}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || Object.keys(data).length === 0) {
+          throw new Error("Empty or invalid JSON response");
+        }
+
+          if (response.ok) {
+            console.log{ "Success"; };
+          setAssignedItems(data);
+            // Initialize comments after assignedItems is set
+            
+          setComments(
+            data.map((item) => ({
+              assignmentId: item.assignment_id,
+              comment: "",
+            }))
+          );
+        } else {
+          console.error("Error fetching assigned items");
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAssignedItems(studentId);
+  }, []);
+
+      
+      
+
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (
+    !Array.isArray(assignedItems) ||
+    assignedItems.length === 0 ||
+    assignedItems.message
+  ) {
+    return (
+      <div className="boarder-container">
+        <div className="form-student-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="inputEmail4">EDUCATION</label>
+            <hr
+              className="long-line"
+              style={{ width: "100%", border: "1px solid black" }}
+            />
+          </div>
+        </div>
+        <div className="right-side">
+          <div className="labels-container">
+            <label htmlFor="label1">
+              {assignedItems.message || "No education data found"}
+            </label>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+    
+    
+    
+    

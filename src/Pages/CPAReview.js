@@ -12,46 +12,13 @@ const CPADashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-      const studentId = sessionStorage.getItem("userId");
-      
-      const fetchEducationId = async () => {
+    const studentId = sessionStorage.getItem("userId");
+
+    const fetchAssignedItems = async (studentId) => {
       try {
         const response = await fetch(
-          `http://localhost/careercanvas/getEducationId.php?studentId=${studentId}`
+          `http://localhost/careercanvas/getAssignedItems.php?studentId=${studentId}`
         );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data || !data.educationId) {
-          throw new Error("Invalid or missing educationId");
-        }
-
-        // Use the fetched educationId
-        const educationId = data.educationId;
-
-
-          fetchAssignedItems(studentId, educationId);
-      } catch (error) {
-        console.error("Error fetching educationId:", error.message);
-        setLoading(false);
-      }
-    };
-
-    fetchEducationId();
-  }, []);
-    
-    
-    const fetchAssignedItems = async (studentId, educationId) => {
-    try {
-      const response = await fetch(
-        `http://localhost/careercanvas/getAssignedItems.php?studentId=${studentId}&educationId=${educationId}`
-      );
-    
-    
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -64,7 +31,12 @@ const CPADashboard = () => {
         }
 
         if (response.ok) {
+          console.log("Success");
+          console.log("Assigned Items:", data);
+
           setAssignedItems(data);
+
+          // Initialize comments after assignedItems is set
           setComments(
             data.map((item) => ({
               assignmentId: item.assignment_id,
@@ -81,18 +53,32 @@ const CPADashboard = () => {
       }
     };
 
+    fetchAssignedItems(studentId);
+  }, []);
+
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  if (
-    !Array.isArray(assignedItems) ||
-    assignedItems.length === 0 ||
-    assignedItems.message
-  ) {
+  if (!Array.isArray(assignedItems) || assignedItems.length === 0 || assignedItems.message) {
     return (
       <div className="boarder-container">
-        {/* ... (remaining code remains the same) */}
+        <div className="form-student-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="inputEmail4">EDUCATION</label>
+            <hr
+              className="long-line"
+              style={{ width: "100%", border: "1px solid black" }}
+            />
+          </div>
+        </div>
+        <div className="right-side">
+          <div className="labels-container">
+            <label htmlFor="label1">
+              {assignedItems.message || "No education data found"}
+            </label>
+          </div>
+        </div>
       </div>
     );
   }
@@ -107,7 +93,7 @@ const CPADashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            assignmentId: assignmentId,
+            assignmentId,
             comment: comments[index].comment,
           }),
         }
@@ -205,7 +191,7 @@ const CPADashboard = () => {
             />
             <button
               className="main-primary-btn"
-              onClick={() => addComment(assignedItem.assignment_id,index)}
+              onClick={() => addComment(assignedItem.assignment_id, index)}
             >
               Add Comment
             </button>
